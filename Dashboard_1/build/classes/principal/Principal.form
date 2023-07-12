@@ -183,7 +183,7 @@
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="83" green="80" red="80" type="rgb"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="PEOPLE"/>
+                    <Property name="text" type="java.lang.String" value="Facturaci&#xf3;n electr&#xf3;nica"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -238,7 +238,7 @@
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/img/collection.png"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Collection"/>
+                <Property name="text" type="java.lang.String" value="Inventario"/>
                 <Property name="colorHover" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="cc" green="cc" red="cc" type="rgb"/>
                 </Property>
@@ -531,7 +531,7 @@
                       <Component id="jButton1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="421" max="32767" attributes="0"/>
+                      <EmptySpace pref="426" max="32767" attributes="0"/>
                       <Component id="jCTextField1" min="-2" pref="281" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -580,7 +580,7 @@
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Dashboard - RojeruSan"/>
+                <Property name="text" type="java.lang.String" value="Facturaci&#xf3;n electr&#xf3;nica"/>
               </Properties>
             </Component>
             <Component class="app.bolivia.swing.JCTextField" name="jCTextField1">
