@@ -13,8 +13,11 @@ db.connect();
 app.use(cors());
 app.use(express.json());
 
-const archivoRoutes = require('./router/productoRouter');
-app.use(archivoRoutes);
+const productoRoutes = require('./router/productoRouter');
+app.use(productoRoutes);
+
+const categoriaRoutes = require('./router/categoriaRouter');
+app.use(categoriaRoutes);
 // ...
 
 app.listen(port, () => {

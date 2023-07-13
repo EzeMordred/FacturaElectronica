@@ -103,7 +103,7 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(128, 128, 131));
-        jLabel1.setText("PEOPLE");
+        jLabel1.setText("Facturación electrónica");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -149,7 +149,7 @@ public class Principal extends javax.swing.JFrame {
         dos.setBackground(new java.awt.Color(239, 238, 244));
         dos.setForeground(new java.awt.Color(128, 128, 131));
         dos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/collection.png"))); // NOI18N
-        dos.setText("Collection");
+        dos.setText("Inventario");
         dos.setColorHover(new java.awt.Color(204, 204, 204));
         dos.setColorNormal(new java.awt.Color(239, 238, 244));
         dos.setColorPressed(new java.awt.Color(204, 204, 204));
@@ -391,7 +391,7 @@ public class Principal extends javax.swing.JFrame {
         jLabel2.setBackground(new java.awt.Color(255, 255, 255));
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Dashboard - RojeruSan");
+        jLabel2.setText("Facturación electrónica");
 
         jCTextField1.setBackground(new java.awt.Color(38, 86, 186));
         jCTextField1.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(255, 255, 255)));
@@ -409,7 +409,7 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(jButton1)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 421, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 426, Short.MAX_VALUE)
                 .addComponent(jCTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );

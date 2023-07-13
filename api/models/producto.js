@@ -68,7 +68,7 @@ class Producto {
   
     insertProducto(idCategoria, nombre, descripcion, precio, callback) {
       const query = `
-        INSERT INTO producto (id_categoria, nombre, descripcion, precio)
+        INSERT INTO Producto (id_categoria, nombre, descripcion, precio)
         VALUES (?, ?, ?, ?)
       `;
       const values = [idCategoria, nombre, descripcion, precio];
@@ -85,7 +85,7 @@ class Producto {
   
     updateProducto(idProducto, idCategoria, nombre, descripcion, precio, callback) {
       const query = `
-        UPDATE producto
+        UPDATE Producto
         SET id_categoria = ?, nombre = ?, descripcion = ?, precio = ?
         WHERE id_producto = ?
       `;
@@ -102,7 +102,7 @@ class Producto {
     }
   
     deleteProducto(idProducto, callback) {
-      const query = 'DELETE FROM producto WHERE id_producto = ?';
+      const query = 'DELETE FROM Producto WHERE id_producto = ?';
   
       this.connection.query(query, [idProducto], (err, result) => {
         if (err) {
