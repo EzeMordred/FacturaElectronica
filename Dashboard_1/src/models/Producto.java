@@ -10,14 +10,14 @@ package models;
  * @author usuario
  */
 public class Producto {
-    private String idProducto;
-    private String idCategoria;
+    private int idProducto;
+    private Integer idCategoria;
     private String nombre;
     private String descripcion;
     private float precio;
 
     // Constructor
-    public Producto(String idProducto, String idCategoria, String nombre, String descripcion, float precio) {
+    public Producto(int idProducto, Integer idCategoria, String nombre, String descripcion, float precio) {
         this.idProducto = idProducto;
         this.idCategoria = idCategoria;
         this.nombre = nombre;
@@ -26,19 +26,19 @@ public class Producto {
     }
 
     // Getters y setters
-    public String getIdProducto() {
+    public int getIdProducto() {
         return idProducto;
     }
 
-    public void setIdProducto(String idProducto) {
+    public void setIdProducto(int idProducto) {
         this.idProducto = idProducto;
     }
 
-    public String getIdCategoria() {
+    public Integer getIdCategoria() {
         return idCategoria;
     }
 
-    public void setIdCategoria(String idCategoria) {
+    public void setIdCategoria(Integer idCategoria) {
         this.idCategoria = idCategoria;
     }
 
@@ -69,4 +69,5 @@ public class Producto {
     // Otros métodos si es necesario
     // ...
 }
+
 

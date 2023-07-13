@@ -5,6 +5,18 @@
  */
 package paneles;
 
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 /**
  *
  * @author RojeruSan
@@ -14,9 +26,103 @@ public class pnlCollection extends javax.swing.JPanel {
     /**
      * Creates new form pnlHome
      */
+    
+    
     public pnlCollection() {
         initComponents();
+        cargarDatosDesdeAPI();
     }
+    
+    
+    private String getApiResponse(String apiUrl) throws IOException {
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            StringBuilder responseBuilder = new StringBuilder();
+
+            while ((line = reader.readLine()) != null) {
+                responseBuilder.append(line);
+            }
+            reader.close();
+
+            return responseBuilder.toString();
+        } else {
+            throw new IOException("Error: " + responseCode);
+        }
+    }
+    
+    public void cargarDatosDesdeAPI() {
+    try {
+        String apiUrl = "http://localhost:3000/productos"; // Reemplaza con la URL correcta del API
+        String apiResponse = getApiResponse(apiUrl); // Llama al método getApiResponse para obtener la respuesta del API
+
+        // Procesa la respuesta del API y carga los datos en la tabla
+        JSONArray productosArray = new JSONArray(apiResponse);
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
+        model.addColumn("Nombre");
+        model.addColumn("Descripción");
+        model.addColumn("Categoría");
+        model.addColumn("Precio");
+
+        for (int i = 0; i < productosArray.length(); i++) {
+            JSONObject producto = productosArray.getJSONObject(i);
+            int idProducto = producto.getInt("id_producto");
+            int idCategoria = producto.getInt("id_categoria");
+            String nombre = producto.getString("nombre");
+            String descripcion = producto.getString("descripcion");
+            float precio = (float) producto.getDouble("precio");
+            String nombreCategoria = producto.getString("categoriaPrincipal");
+
+            // Agrega una fila a la tabla con los datos del producto
+            model.addRow(new Object[]{idProducto, nombre, descripcion,nombreCategoria, precio});
+        }
+
+        jtblProductos.setModel(model); // Establece el modelo de la tabla con los datos cargados
+    } catch (IOException e) {
+        // Maneja el error en caso de fallo al obtener los datos del API
+        e.printStackTrace();
+    }
+}
+    
+    private void eliminarFilaSeleccionada() {
+    int filaSeleccionada = jtblProductos.getSelectedRow();
+    if (filaSeleccionada != -1) {
+        int idProducto = (int) jtblProductos.getValueAt(filaSeleccionada, 0); // Obtener el ID del producto de la primera columna
+        String apiUrl = "http://localhost:3000/productos/" + idProducto; // Reemplaza con la URL correcta del API
+        
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("DELETE");
+            
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // La solicitud de eliminación fue exitosa
+                // Realizar las acciones necesarias, como recargar la tabla
+                cargarDatosDesdeAPI();
+                JOptionPane.showMessageDialog(this, "Fila eliminada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // Ocurrió un error en la solicitud
+                // Manejar el error adecuadamente
+                JOptionPane.showMessageDialog(this, "Error al eliminar la fila: " + responseCode, "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            connection.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "No se ha seleccionado ninguna fila", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -29,11 +135,11 @@ public class pnlCollection extends javax.swing.JPanel {
 
         jLabel7 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        jtblProductos = new javax.swing.JTable();
+        jbtnNuevo = new javax.swing.JButton();
+        jbtnEditar = new javax.swing.JButton();
+        jbtnEliminar = new javax.swing.JButton();
+        jbtnrefresh = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -42,7 +148,7 @@ public class pnlCollection extends javax.swing.JPanel {
         jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel7.setText("Lista de Productos");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jtblProductos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -53,15 +159,35 @@ public class pnlCollection extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(jtblProductos);
 
-        jButton1.setText("Nuevo");
+        jbtnNuevo.setText("Nuevo");
+        jbtnNuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnNuevoActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Editar");
+        jbtnEditar.setText("Editar");
+        jbtnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnEditarActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Eliminar");
+        jbtnEliminar.setText("Eliminar");
+        jbtnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnEliminarActionPerformed(evt);
+            }
+        });
 
-        jButton4.setText("Guardar");
+        jbtnrefresh.setText("refresh");
+        jbtnrefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnrefreshActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -71,17 +197,18 @@ public class pnlCollection extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(958, 958, 958))
+                        .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                        .addGap(952, 952, 952))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2)
-                            .addComponent(jButton3)
-                            .addComponent(jButton4))
+                            .addComponent(jbtnNuevo)
+                            .addComponent(jbtnEditar)
+                            .addComponent(jbtnEliminar))
                         .addGap(205, 205, 205)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 678, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtnrefresh)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
@@ -92,29 +219,81 @@ public class pnlCollection extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(jbtnNuevo)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton2)
+                        .addComponent(jbtnEditar)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton3)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton4)
+                        .addComponent(jbtnEliminar)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(13, 13, 13)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jbtnrefresh)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap())))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jbtnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnNuevoActionPerformed
+        int idProducto = 0;
+        String nombre = "";
+        String descripcion = "";
+        String categoria = "viveres";
+        float precio = 0;
+        
+        Producto productoFrame;
+        try {
+            productoFrame = new Producto(idProducto,nombre, descripcion, categoria, precio);
+            productoFrame.setVisible(true);
+        } catch (IOException ex) {
+            Logger.getLogger(pnlCollection.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+       
+        
+    }//GEN-LAST:event_jbtnNuevoActionPerformed
+
+    private void jbtnrefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnrefreshActionPerformed
+        // TODO add your handling code here:
+        cargarDatosDesdeAPI();
+    }//GEN-LAST:event_jbtnrefreshActionPerformed
+
+    private void jbtnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnEliminarActionPerformed
+        // TODO add your handling code here:
+        eliminarFilaSeleccionada();
+    }//GEN-LAST:event_jbtnEliminarActionPerformed
+
+    private void jbtnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnEditarActionPerformed
+        // TODO add your handling code here:
+        int filaSeleccionada = jtblProductos.getSelectedRow();
+    if (filaSeleccionada != -1) {
+        int idProducto = (int) jtblProductos.getValueAt(filaSeleccionada, 0);
+        String nombre = (String) jtblProductos.getValueAt(filaSeleccionada, 1);
+        String descripcion = (String) jtblProductos.getValueAt(filaSeleccionada, 2);
+        String categoria = (String) jtblProductos.getValueAt(filaSeleccionada, 3);
+        float precio = (float) jtblProductos.getValueAt(filaSeleccionada, 4);
+        
+        Producto productoFrame;
+            try {
+                productoFrame = new Producto(idProducto, nombre, descripcion, categoria, precio);
+                productoFrame.setVisible(true);
+            } catch (IOException ex) {
+                Logger.getLogger(pnlCollection.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+    } else {
+        JOptionPane.showMessageDialog(this, "No se ha seleccionado ninguna fila", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_jbtnEditarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JButton jbtnEditar;
+    private javax.swing.JButton jbtnEliminar;
+    private javax.swing.JButton jbtnNuevo;
+    private javax.swing.JButton jbtnrefresh;
+    private javax.swing.JTable jtblProductos;
     // End of variables declaration//GEN-END:variables
 }
