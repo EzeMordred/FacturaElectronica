@@ -12,9 +12,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,10 +52,16 @@ public class Producto extends javax.swing.JFrame {
         jtxtDescripcion.setText(descripcionSeleccionada);
         jtxtPrecioProducto.setText(String.valueOf(precioSeleccionado));
         jcbCategorias.setSelectedItem(categoriaSeleccionada);
-        if(idProductoSeleccionado==0){
+        if (idProductoSeleccionado == 0) {
             jtxtTitulo.setText("Nuevo Producto");
-        }else{
+        } else {
             jtxtTitulo.setText("Editar Producto");
+        }
+
+        Document doc = jtxtPrecioProducto.getDocument();
+        if (doc instanceof AbstractDocument) {
+            AbstractDocument abstractDoc = (AbstractDocument) doc;
+            abstractDoc.setDocumentFilter(new DecimalDocumentFilter());
         }
     }
 
@@ -104,109 +113,132 @@ public class Producto extends javax.swing.JFrame {
     private void enviarDatos() throws IOException {
         String apiUrl = "http://localhost:3000/productos"; // Reemplaza con la URL de la API para enviar los datos por POST
 
-        // Obtener los valores de los campos de texto
         String nombre = jtxtNombreProducto.getText();
         String descripcion = jtxtDescripcion.getText();
-        float precio = Float.parseFloat(jtxtPrecioProducto.getText());
-        String categoriaNombre = (String) jcbCategorias.getSelectedItem();
-        Integer categoriaId = obtenerIdCategoria(categoriaNombre);
+        float precio = 0;
+        String categoriaNombre = null;
+        Integer categoriaId = null;
 
-        // Crear el objeto JSON con los datos
-        JSONObject json = new JSONObject();
-        json.put("nombre", nombre);
-        json.put("descripcion", descripcion);
-        json.put("precio", precio);
-        json.put("id_categoria", categoriaId);
+        if (!nombre.isEmpty() && !descripcion.isEmpty() && !jtxtPrecioProducto.getText().isEmpty() && jcbCategorias.getSelectedItem() != null) {
 
-        // Convertir el objeto JSON a una cadena de texto
-        String jsonData = json.toString();
+            precio = Float.parseFloat(jtxtPrecioProducto.getText());
+            categoriaNombre = (String) jcbCategorias.getSelectedItem();
+            categoriaId = obtenerIdCategoria(categoriaNombre);
 
-        // Establecer la conexión HTTP
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
+            // Crear el objeto JSON con los datos
+            JSONObject json = new JSONObject();
+            json.put("nombre", nombre);
+            json.put("descripcion", descripcion);
+            json.put("precio", precio);
+            json.put("id_categoria", categoriaId);
 
-        // Enviar los datos al servidor
-        try (OutputStream outputStream = connection.getOutputStream()) {
-            byte[] input = jsonData.getBytes(StandardCharsets.UTF_8);
-            outputStream.write(input, 0, input.length);
-        }
+            // Convertir el objeto JSON a una cadena de texto
+            String jsonData = json.toString();
 
-        // Obtener la respuesta del servidor
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            // La solicitud fue exitosa
-            // Realizar las acciones necesarias
-            JOptionPane.showMessageDialog(this, "Datos enviados correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            pnlCollection a = new pnlCollection();
-            a.cargarDatosDesdeAPI();
-            this.dispose();
+            // Establecer la conexión HTTP
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            // Enviar los datos al servidor
+            try (OutputStream outputStream = connection.getOutputStream()) {
+                byte[] input = jsonData.getBytes(StandardCharsets.UTF_8);
+                outputStream.write(input, 0, input.length);
+            }
+
+            // Obtener la respuesta del servidor
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // La solicitud fue exitosa
+                // Realizar las acciones necesarias
+                JOptionPane.showMessageDialog(this, "Datos enviados correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                pnlCollection a = new pnlCollection();
+                a.cargarDatosDesdeAPI();
+                this.dispose();
+
+            } else {
+                // Ocurrió un error en la solicitud
+                // Manejar el error adecuadamente
+                JOptionPane.showMessageDialog(this, "Error al enviar los datos: " + responseCode, "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            // Cerrar la conexión
+            connection.disconnect();
 
         } else {
-            // Ocurrió un error en la solicitud
-            // Manejar el error adecuadamente
-            JOptionPane.showMessageDialog(this, "Error al enviar los datos: " + responseCode, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Por favor, llene todos los campos requeridos.");
         }
 
-        // Cerrar la conexión
-        connection.disconnect();
     }
-    
-    
+
     private void actualizarDatos() throws IOException {
-    String apiUrl = "http://localhost:3000/productos/" + idProductoSeleccionado; // Reemplaza con la URL de la API para actualizar el producto
+        String apiUrl = "http://localhost:3000/productos/" + idProductoSeleccionado; // Reemplaza con la URL de la API para actualizar el producto
 
-    // Obtener los nuevos valores de los campos de texto
-    String nuevoNombre = jtxtNombreProducto.getText();
-    String nuevaDescripcion = jtxtDescripcion.getText();
-    float nuevoPrecio = Float.parseFloat(jtxtPrecioProducto.getText());
-    String nuevaCategoriaNombre = (String) jcbCategorias.getSelectedItem();
-    Integer nuevaCategoriaId = obtenerIdCategoria(nuevaCategoriaNombre);
+        String nombre = jtxtNombreProducto.getText();
+        String descripcion = jtxtDescripcion.getText();
+        float precio = 0;
+        String categoriaNombre = null;
+        Integer categoriaId = null;
 
-    // Crear el objeto JSON con los nuevos datos
-    JSONObject json = new JSONObject();
-    json.put("nombre", nuevoNombre);
-    json.put("descripcion", nuevaDescripcion);
-    json.put("precio", nuevoPrecio);
-    json.put("id_categoria", nuevaCategoriaId);
+        if (!nombre.isEmpty() && !descripcion.isEmpty() && !jtxtPrecioProducto.getText().isEmpty() && jcbCategorias.getSelectedItem() != null) {
 
-    // Convertir el objeto JSON a una cadena de texto
-    String jsonData = json.toString();
+            precio = Float.parseFloat(jtxtPrecioProducto.getText());
+            categoriaNombre = (String) jcbCategorias.getSelectedItem();
+            categoriaId = obtenerIdCategoria(categoriaNombre);
 
-    // Establecer la conexión HTTP
-    URL url = new URL(apiUrl);
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setRequestMethod("PUT");
-    connection.setRequestProperty("Content-Type", "application/json");
-    connection.setDoOutput(true);
+            // Obtener los nuevos valores de los campos de texto
+            String nuevoNombre = jtxtNombreProducto.getText();
+            String nuevaDescripcion = jtxtDescripcion.getText();
+            float nuevoPrecio = Float.parseFloat(jtxtPrecioProducto.getText());
+            String nuevaCategoriaNombre = (String) jcbCategorias.getSelectedItem();
+            Integer nuevaCategoriaId = obtenerIdCategoria(nuevaCategoriaNombre);
 
-    // Enviar los datos al servidor
-    try (OutputStream outputStream = connection.getOutputStream()) {
-        byte[] input = jsonData.getBytes(StandardCharsets.UTF_8);
-        outputStream.write(input, 0, input.length);
+            // Crear el objeto JSON con los nuevos datos
+            JSONObject json = new JSONObject();
+            json.put("nombre", nuevoNombre);
+            json.put("descripcion", nuevaDescripcion);
+            json.put("precio", nuevoPrecio);
+            json.put("id_categoria", nuevaCategoriaId);
+
+            // Convertir el objeto JSON a una cadena de texto
+            String jsonData = json.toString();
+
+            // Establecer la conexión HTTP
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            // Enviar los datos al servidor
+            try (OutputStream outputStream = connection.getOutputStream()) {
+                byte[] input = jsonData.getBytes(StandardCharsets.UTF_8);
+                outputStream.write(input, 0, input.length);
+            }
+
+            // Obtener la respuesta del servidor
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // La solicitud fue exitosa
+                // Realizar las acciones necesarias
+                JOptionPane.showMessageDialog(this, "Datos actualizados correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                pnlCollection a = new pnlCollection();
+                a.cargarDatosDesdeAPI();
+                this.dispose();
+            } else {
+                // Ocurrió un error en la solicitud
+                // Manejar el error adecuadamente
+                JOptionPane.showMessageDialog(this, "Error al actualizar los datos: " + responseCode, "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            // Cerrar la conexión
+            connection.disconnect();
+        } else {
+            JOptionPane.showMessageDialog(null, "Por favor, llene todos los campos requeridos.");
+        }
     }
-
-    // Obtener la respuesta del servidor
-    int responseCode = connection.getResponseCode();
-    if (responseCode == HttpURLConnection.HTTP_OK) {
-        // La solicitud fue exitosa
-        // Realizar las acciones necesarias
-        JOptionPane.showMessageDialog(this, "Datos actualizados correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        pnlCollection a = new pnlCollection();
-        a.cargarDatosDesdeAPI();
-        this.dispose();
-    } else {
-        // Ocurrió un error en la solicitud
-        // Manejar el error adecuadamente
-        JOptionPane.showMessageDialog(this, "Error al actualizar los datos: " + responseCode, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    // Cerrar la conexión
-    connection.disconnect();
-}
-
 
     private Integer obtenerIdCategoria(String categoriaNombre) {
         try {
@@ -230,8 +262,6 @@ public class Producto extends javax.swing.JFrame {
 
         return null; // Manejar el caso en el que la categoría no exista o haya ocurrido un error
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
