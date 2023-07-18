@@ -9,12 +9,12 @@ package paneles;
  *
  * @author RojeruSan
  */
-public class pnlMarket extends javax.swing.JPanel {
+public class pnlFactura extends javax.swing.JPanel {
 
     /**
      * Creates new form pnlHome
      */
-    public pnlMarket() {
+    public pnlFactura() {
         initComponents();
     }
 
